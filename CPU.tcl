@@ -8,12 +8,12 @@ vmap work rtl_work
 vmap compiled rtl_work
 
 vcom -work compiled [pwd]/compiled.vhd
-vcom -work work [pwd]/assembler.vhd -suppress 1339
+vcom -work work [pwd]/assemble.vhd -suppress 1339
 #vcom -work work [pwd]/toplevel.vhd
 #vcom -work work [pwd]/flash.vhd
 #vcom -work work [pwd]/UART.vhd
 
-vsim compiler
+vsim assemble
 
 add wave -recursive *
 
