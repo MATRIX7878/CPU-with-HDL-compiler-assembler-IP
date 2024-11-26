@@ -1,6 +1,6 @@
 CLR AC
 STA B
-JMZ 10
+JMPZ 10
 
 .org 10
 ADD B
