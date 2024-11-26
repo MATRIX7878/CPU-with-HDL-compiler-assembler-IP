@@ -6,7 +6,7 @@ USE WORK.compiled.ALL;
 
 ENTITY assemble IS
     PORT(clk : IN STD_LOGIC;
-         raw : IN STD_LOGIC_VECTOR (0 TO 823);
+         raw : IN STD_LOGIC_VECTOR (0 TO 815);
          assembled : OUT STD_LOGIC := '0';
          machine : OUT binary
         );
@@ -53,32 +53,70 @@ BEGIN
 
         IF raw(filePart + 24 TO filePart + 31) = x"20" THEN
             newAction(0 TO 23) <= raw(filePart TO filePart + 23);
-            newFilePart <= filePart + 32;
+            newAction(24 TO 31) <= (OTHERS => '0');
+            IF raw(filePart + 40 TO filePart + 47) = x"0A" AND raw(filePart + 48 TO filePart + 55) /= x"0A" THEN
+                newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 48;
+                newIter <= 1;
+            ELSIF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 56 TO filePart + 63) /= x"0A"THEN
+                newInput(0 TO 15) <= raw(filePart + 32 TO filePart + 47);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 56;
+                newIter <= 2;
+            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 64 TO filePart + 71) /= x"0A" THEN
+                newInput <= raw(filePart + 32 TO filePart + 55);
+                newFilePart <= filePart + 64;
+                newIter <= 3;
+            ELSIF raw(filePart + 40 TO filePart + 55) = x"0A0A" THEN
+                newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 56;
+                newIter <= 1;
+            ELSIF raw(filePart + 48 TO filePart + 63) = x"0A0A" THEN
+                newInput(0 TO 15) <= raw(filePart + 32 TO filePart + 47);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 64;
+                newIter <= 2;
+            ELSIF raw(filePart + 56 TO filePart + 71) = x"0A0A" THEN
+                newInput <= raw(filePart + 32 TO filePart + 55);
+                newFilePart <= filePart + 72;
+                newIter <= 3;
+            END IF;
         ELSIF raw(filePart + 32 TO filePart + 39) = x"20" THEN
             newAction(0 TO 31) <= raw(filePart TO filePart + 31);
-            newFilePart <= filePart + 40;
+            IF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 56 TO filePart + 63) /= x"0A"THEN
+                newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 56;
+                newIter <= 1;
+            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 64 TO filePart + 71) /= x"0A"THEN
+                newInput(0 TO 15) <= raw(filePart + 40 TO filePart + 55);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 64;
+                newIter <= 2;
+            ELSIF raw(filePart + 64 TO filePart + 71) = x"0A" AND raw(filePart + 72 TO filePart + 79) /= x"0A" THEN
+                newInput <= raw(filePart + 40 TO filePart + 63);
+                newFilePart <= filePart + 72;
+                newIter <= 3;
+            ELSIF raw(filePart + 48 TO filePart + 63) = x"0A0A" THEN
+                newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 64;
+                newIter <= 1;
+            ELSIF raw(filePart + 56 TO filePart + 71) = x"0A0A" THEN
+                newInput(0 TO 15) <= raw(filePart + 40 TO filePart + 55);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newFilePart <= filePart + 72;
+                newIter <= 2;
+            ELSIF raw(filePart + 64 TO filePart + 79) = x"0A0A" THEN
+                newInput <= raw(filePart + 40 TO filePart + 63);
+                newFilePart <= filePart + 80;
+                newIter <= 3;
+            END IF;
         END IF;
 
-        IF raw(filePart TO filePart + 15) = x"0D0A" AND raw(filePart + 16 TO filePart + 31) = x"0D0A" THEN
-            newAction(0 TO 31) <= raw(filePart + 32 TO filePart + 63);
-            newFilePart <= newFilePart + 64;
-        END IF;
-
-        IF raw(filePart + 8 TO filePart + 24) = x"0D0A" THEN
-            newInput(0 TO 7) <= raw(filePart TO filePart + 7);
-            newFilePart <= filePart + 24;
-            newIter <= 1;
-        ELSIF raw(filePart + 16 TO filePart + 31) = x"0D0A" THEN
-            newInput(0 TO 15) <= raw(filePart TO filePart + 15);
-            newFilePart <= filePart + 32;
-            newIter <= 2;
-        ELSIF raw(filePart + 24 TO filePart + 39) = x"0D0A" THEN
-            newInput(0 TO 23) <= raw(filePart TO filePart + 23);
-            newFilePart <= filePart + 39;
-            newIter <= 3;
-        END IF;
-
-        IF filePart + 8 > 832 OR filePart + 16 > 832 OR filePart + 24 > 832 THEN
+        IF filePart + 8 > 815 OR filePart + 16 > 815 OR filePart + 24 > 815 THEN
             assembled <= '1';
             newNumber <= 0;
             newChange <= (OTHERS => '0');
@@ -204,7 +242,6 @@ BEGIN
             WHEN OTHERS => NULL;
             END CASE;
         WHEN HLT => newInstruction(15 DOWNTO 0) <= x"7000";
-        WHEN OTHERS => NULL;
         END CASE;
 
 -----------------Put data into address space------------------------
