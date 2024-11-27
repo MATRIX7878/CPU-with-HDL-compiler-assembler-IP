@@ -8,7 +8,7 @@ ENTITY assemble IS
     PORT(clk : IN STD_LOGIC;
          raw : IN STD_LOGIC_VECTOR (0 TO 815);
          assembled : OUT STD_LOGIC := '0';
-         machine : OUT binary
+         machine : OUT binary := (OTHERS => (OTHERS => '0'))
         );
 END ENTITY;
 
@@ -30,11 +30,14 @@ SIGNAL action, newAction : STD_LOGIC_VECTOR (0 TO 31) := (OTHERS => '0');
 
 SIGNAL instruction, newInstruction : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
 
+SIGNAL newAssembled, compile : STD_LOGIC;
+
 SIGNAL newMachine, synthesized : binary;
 
 BEGIN
 
     machine <= synthesized;
+    assembled <= compile;
 
     PROCESS(ALL)
     BEGIN
@@ -48,6 +51,7 @@ BEGIN
         newInput <= input;
         newFilePart <= filePart;
         newIter <= iter;
+        newAssembled <= compile;
 
 ----------Parse data-------------
 
@@ -117,7 +121,7 @@ BEGIN
         END IF;
 
         IF filePart + 8 > 815 OR filePart + 16 > 815 OR filePart + 24 > 815 THEN
-            assembled <= '1';
+            newAssembled <= '1';
             newNumber <= 0;
             newChange <= (OTHERS => '0');
             newMemAddr <= 0;
@@ -250,9 +254,6 @@ BEGIN
 
         IF instruction(15 DOWNTO 8) = x"FF" THEN
             newMemAddr <= memAddr + (number - memAddr);
-            FOR i IN memAddr TO (number - memAddr) LOOP
-                newMachine(memAddr) <= (OTHERS => '0');
-            END LOOP;
         ELSE
             newMemAddr <= memAddr + 1;
         END IF;
@@ -272,6 +273,7 @@ BEGIN
             memAddr <= newMemAddr;
             input <= newInput;
             filePart <= newFilePart;
+            compile <= newAssembled;
         END IF;
     END PROCESS;
     
