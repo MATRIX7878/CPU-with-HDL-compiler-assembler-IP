@@ -58,21 +58,22 @@ BEGIN
         IF raw(filePart + 24 TO filePart + 31) = x"20" THEN
             newAction(0 TO 23) <= raw(filePart TO filePart + 23);
             newAction(24 TO 31) <= (OTHERS => '0');
-            IF raw(filePart + 40 TO filePart + 47) = x"0A" AND raw(filePart + 48 TO filePart + 55) /= x"0A" THEN
+            IF raw(filePart + 40 TO filePart + 47) = x"0A" AND raw(filePart + 40 TO filePart + 55) /= x"0A0A" THEN
                 newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
                 newInput(8 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 48;
                 newIter <= 1;
-            ELSIF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 56 TO filePart + 63) /= x"0A"THEN
+            ELSIF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 48 TO filePart + 63) /= x"0A0A" THEN
                 newInput(0 TO 15) <= raw(filePart + 32 TO filePart + 47);
                 newInput(16 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 56;
                 newIter <= 2;
-            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 64 TO filePart + 71) /= x"0A" THEN
+            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 56 TO filePart + 71) /= x"0A0A" THEN
                 newInput <= raw(filePart + 32 TO filePart + 55);
                 newFilePart <= filePart + 64;
                 newIter <= 3;
-            ELSIF raw(filePart + 40 TO filePart + 55) = x"0A0A" THEN
+            END IF;
+            IF raw(filePart + 40 TO filePart + 55) = x"0A0A" THEN
                 newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
                 newInput(8 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 56;
@@ -87,23 +88,36 @@ BEGIN
                 newFilePart <= filePart + 72;
                 newIter <= 3;
             END IF;
+            IF filePart + 40 > 815 THEN
+                newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newIter <= 1;
+            ELSIF filePart + 48 > 815 THEN
+                newInput(0 TO 15) <= raw(filePart + 32 TO filePart + 47);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newIter <= 2;
+            ELSIF filePart + 56 > 815 THEN
+                newInput <= raw(filePart + 32 TO filePart + 55);
+                newIter <= 3;
+            END IF;
         ELSIF raw(filePart + 32 TO filePart + 39) = x"20" THEN
-            newAction(0 TO 31) <= raw(filePart TO filePart + 31);
-            IF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 56 TO filePart + 63) /= x"0A"THEN
+            newAction <= raw(filePart TO filePart + 31);
+            IF raw(filePart + 48 TO filePart + 55) = x"0A" AND raw(filePart + 48 TO filePart + 63) /= x"0A0A" THEN
                 newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
                 newInput(8 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 56;
                 newIter <= 1;
-            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 64 TO filePart + 71) /= x"0A"THEN
+            ELSIF raw(filePart + 56 TO filePart + 63) = x"0A" AND raw(filePart + 56 TO filePart + 71) /= x"0A0A" THEN
                 newInput(0 TO 15) <= raw(filePart + 40 TO filePart + 55);
                 newInput(16 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 64;
                 newIter <= 2;
-            ELSIF raw(filePart + 64 TO filePart + 71) = x"0A" AND raw(filePart + 72 TO filePart + 79) /= x"0A" THEN
+            ELSIF raw(filePart + 64 TO filePart + 71) = x"0A" AND raw(filePart + 64 TO filePart + 79) /= x"0A0A" THEN
                 newInput <= raw(filePart + 40 TO filePart + 63);
                 newFilePart <= filePart + 72;
                 newIter <= 3;
-            ELSIF raw(filePart + 48 TO filePart + 63) = x"0A0A" THEN
+            END IF;
+            IF raw(filePart + 48 TO filePart + 63) = x"0A0A" THEN
                 newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
                 newInput(8 TO 23) <= (OTHERS => '0');
                 newFilePart <= filePart + 64;
@@ -118,17 +132,18 @@ BEGIN
                 newFilePart <= filePart + 80;
                 newIter <= 3;
             END IF;
-        END IF;
-
-        IF filePart + 8 > 815 OR filePart + 16 > 815 OR filePart + 24 > 815 THEN
-            newAssembled <= '1';
-            newNumber <= 0;
-            newChange <= (OTHERS => '0');
-            newMemAddr <= 0;
-            newAction <= (OTHERS => '0');
-            newInput <= (OTHERS => '0');
-            newFilePart <= 0;
-            newIter <= 0;
+            IF filePart + 48 > 815 THEN
+                newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
+                newInput(8 TO 23) <= (OTHERS => '0');
+                newIter <= 1;
+            ELSIF filePart + 56 > 815 THEN
+                newInput(0 TO 15) <= raw(filePart + 40 TO filePart + 55);
+                newInput(16 TO 23) <= (OTHERS => '0');
+                newIter <= 2;
+            ELSIF filePart + 64 > 815 THEN
+                newInput <= raw(filePart + 40 TO filePart + 63);
+                newIter <= 3;
+            END IF;
         END IF;
 
 ----------Decide state values-------------
@@ -274,6 +289,7 @@ BEGIN
             input <= newInput;
             filePart <= newFilePart;
             compile <= newAssembled;
+            iter <= newIter;
         END IF;
     END PROCESS;
     
