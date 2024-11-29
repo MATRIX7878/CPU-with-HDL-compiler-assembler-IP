@@ -58,16 +58,16 @@ BEGIN
         IF raw(filePart + 24 TO filePart + 31) = x"20" THEN
             newAction(0 TO 23) <= raw(filePart TO filePart + 23);
             newAction(24 TO 31) <= (OTHERS => '0');
-            IF filePart + 40 > 815 THEN
-                IF filePart + 40 > 815 THEN
+            IF filePart + 56 > 815 THEN
+                IF filePart + 40 > 815 AND filePart + 48 <= 816 THEN
                     newInput(0 TO 7) <= raw(filePart + 32 TO filePart + 39);
                     newInput(8 TO 23) <= (OTHERS => '0');
                     newIter <= 1;
-                ELSIF filePart + 48 > 815 THEN
+                ELSIF filePart + 48 > 815 AND filePart + 56 <= 824 THEN
                     newInput(0 TO 15) <= raw(filePart + 32 TO filePart + 47);
                     newInput(16 TO 23) <= (OTHERS => '0');
                     newIter <= 2;
-                ELSIF filePart + 56 > 815 THEN
+                ELSIF filePart + 56 = 816 THEN
                     newInput <= raw(filePart + 32 TO filePart + 55);
                     newIter <= 3;
                 END IF;
@@ -105,16 +105,16 @@ BEGIN
             END IF;
         ELSIF raw(filePart + 32 TO filePart + 39) = x"20" THEN
             newAction <= raw(filePart TO filePart + 31);
-            IF filePart + 48 > 215 THEN
-                IF filePart + 48 > 815 THEN
+            IF filePart + 64 > 815 THEN
+                IF filePart + 48 > 815 AND filePart + 56 <= 816 THEN
                     newInput(0 TO 7) <= raw(filePart + 40 TO filePart + 47);
                     newInput(8 TO 23) <= (OTHERS => '0');
                     newIter <= 1;
-                ELSIF filePart + 56 > 815 THEN
+                ELSIF filePart + 56 > 815 AND filePart + 64 <= 824 THEN
                     newInput(0 TO 15) <= raw(filePart + 40 TO filePart + 55);
                     newInput(16 TO 23) <= (OTHERS => '0');
                     newIter <= 2;
-                ELSIF filePart + 64 > 815 THEN
+                ELSIF filePart + 64 = 816 THEN
                     newInput <= raw(filePart + 40 TO filePart + 63);
                     newIter <= 3;
                 END IF;
@@ -173,9 +173,11 @@ BEGIN
         WHEN x"4C4544" => newARG <= LED;
         WHEN OTHERS => newARG <= OTHER;
             IF iter = 1 THEN
-                newChange(0 TO 7) <= input(0 TO 7) - x"30";
+                newChange(0 TO 15) <= (OTHERS => '0');
+                newChange(16 TO 23) <= input(0 TO 7) - x"30";
             ELSIF iter = 2 THEN
-                newChange(0 TO 15) <= input(0 TO 15) - x"3030";
+                newChange(0 TO 7) <= (OTHERS => '0');
+                newChange(8 TO 23) <= input(0 TO 15) - x"3030";
             ELSIF iter = 3 THEN
                 newChange(0 TO 23) <= input(0 TO 23) - x"303030";
             END IF;
@@ -261,7 +263,7 @@ BEGIN
                 newInstruction(7 DOWNTO 0) <= (OTHERS => '0');
             WHEN C => newInstruction(11 DOWNTO 8) <= "0010";
                 newInstruction(7 DOWNTO 0) <= (OTHERS => '0');
-            WHEN OTHER => newInstruction(15 DOWNTO 8) <= x"91";
+            WHEN OTHER => newInstruction(15 DOWNTO 8) <= x"E1";
                 newNumber <= TO_INTEGER(UNSIGNED(change(0 TO 7))) * 100 + TO_INTEGER(UNSIGNED(change(8 TO 15))) * 10 + TO_INTEGER(UNSIGNED(change(16 TO 23)));
                 newInstruction(7 DOWNTO 0) <= STD_LOGIC_VECTOR(TO_UNSIGNED(number, 8));
             WHEN OTHERS => NULL;
