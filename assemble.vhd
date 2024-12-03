@@ -52,6 +52,7 @@ BEGIN
         newFilePart <= filePart;
         newIter <= iter;
         newAssembled <= compile;
+        newInstruction <= instruction;
 
 ----------Parse data-------------
 
