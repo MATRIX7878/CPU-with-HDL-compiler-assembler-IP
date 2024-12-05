@@ -15,7 +15,13 @@ PACKAGE BODY translator IS
         FOR i IN 0 TO 2 LOOP
             FOR j IN 0 TO 9 LOOP
                 FOR k IN 0 TO 9 LOOP
-                    combined(i * 100 + j * 10 + k) := (STD_LOGIC_VECTOR(TO_UNSIGNED(i, 8)) + 48) & (STD_LOGIC_VECTOR(TO_UNSIGNED(j, 8)) + 48) & (STD_LOGIC_VECTOR(TO_UNSIGNED(k, 8)) + 48);
+                    IF i = 0 AND j = 0 THEN
+                        combined(i * 100 + j * 10 + k) := (STD_LOGIC_VECTOR(TO_UNSIGNED(k, 8)) + 48) & x"00" & x"00";
+                    ELSIF j >= 0  AND i = 0 THEN
+                        combined(i * 100 + j * 10 + k) := (STD_LOGIC_VECTOR(TO_UNSIGNED(j, 8)) + 48) & (STD_LOGIC_VECTOR(TO_UNSIGNED(k, 8)) + 48) & x"00";
+                    ELSIF j >= 0  AND i >= 0 THEN
+                        combined(i * 100 + j * 10 + k) := (STD_LOGIC_VECTOR(TO_UNSIGNED(i, 8)) + 48) & (STD_LOGIC_VECTOR(TO_UNSIGNED(j, 8)) + 48) & (STD_LOGIC_VECTOR(TO_UNSIGNED(k, 8)) + 48);
+                    END IF;
                 END LOOP;
             END LOOP;
         END LOOP;
