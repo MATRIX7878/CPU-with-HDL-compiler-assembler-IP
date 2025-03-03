@@ -92,12 +92,12 @@ BEGIN
             WHEN C => newCode(11 DOWNTO 8) <= "0010";
                 newCode(7 DOWNTO 0) <= x"12";
             WHEN OTHER => newCode(15 DOWNTO 8) <= x"91";
---                FOR i IN 0 TO 255 LOOP
-                    IF input = x"310000" THEN
-                        newCode(7 DOWNTO 0) <= TO_STDLOGICVECTOR(1, 8);
-                        newNumber <= 1;
-                    END IF;
---                END LOOP;
+            FOR i IN 0 TO 255 LOOP
+                IF numbers(i) = input THEN
+                    newCode(7 DOWNTO 0) <= TO_STDLOGICVECTOR(i, 8);
+                    newNumber <= i;
+                END IF;
+            END LOOP;
             WHEN OTHERS => NULL;
             END CASE;
         WHEN STA => newCode(15 DOWNTO 12) <= "0010";
